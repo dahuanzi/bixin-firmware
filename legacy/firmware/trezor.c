@@ -135,6 +135,18 @@ int main(void) {
                                    // unpredictable stack protection checks
 #endif
 
+  config_init();
+  oledClear();
+  oledDrawStringCenter(64, 16, "update boot mode", FONT_DOUBLE);
+  oledRefresh();
+  svc_system_reset();
+  mpu_config_off();
+  usbInit();
+
+  for (;;) {
+    usbPoll();
+  }
+
   drbg_init();
 
   if (!is_mode_unprivileged()) {

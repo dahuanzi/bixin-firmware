@@ -117,7 +117,7 @@ int main(void) {
     __stack_chk_guard = random32();  // this supports compiler provided
                                      // unpredictable stack protection checks
 #ifndef APPVER
-    memory_protect();
+    // memory_protect();
     oledInit();
     sys_poweron();
     buttonsIrqInit();
@@ -142,7 +142,7 @@ int main(void) {
       }
 
       if (SIG_OK != check_firmware_hashes(hdr)) {
-        show_halt("Broken firmware", "detected.");
+        // show_halt("Broken firmware", "detected.");
       }
       mpu_config_off();
       load_app(signed_firmware);

@@ -20,6 +20,8 @@
 #include <libopencm3/usb/hid.h>
 #include <libopencm3/usb/usbd.h>
 
+#include <libopencm3/stm32/flash.h>
+
 #include "common.h"
 #include "config.h"
 #include "debug.h"
@@ -322,21 +324,33 @@ static void u2f_rx_callback(usbd_device *dev, uint8_t ep) {
 
 static void main_rx_callback(usbd_device *dev, uint8_t ep) {
   (void)ep;
+  int len = 0;
+  static int boot_state = 0;
+  static int offset = 0;
   static CONFIDENTIAL uint8_t buf[64] __attribute__((aligned(4)));
   if (dev != NULL) {
-    if (usbd_ep_read_packet(dev, ENDPOINT_ADDRESS_MAIN_OUT, buf, 64) != 64)
-      return;
-    host_channel = CHANNEL_USB;
-  } else {
-    memcpy(buf, packet_buf, 64);
-    host_channel = CHANNEL_SLAVE;
+    len = usbd_ep_read_packet(dev, ENDPOINT_ADDRESS_MAIN_OUT, buf, 64);
+    if (len == 0) return;
   }
-  debugLog(0, "", "main_rx_callback");
-  if (!tiny) {
-    msg_read(buf, 64);
+
+  if (boot_state == 0) {
+    if (buf[0] == 1) {
+      flash_wait_for_last_operation();
+      flash_clear_status_flags();
+      flash_unlock();
+      flash_erase_sector(0, FLASH_CR_PROGRAM_X32);
+      flash_erase_sector(1, FLASH_CR_PROGRAM_X32);
+      boot_state = 1;
+      offset = 0;
+    }
   } else {
-    msg_read_tiny(buf, 64);
+    layoutProgress("updating ...", offset * 1000 / 32768);
+    flash_program(0x8000000 + offset, buf, len);
+    offset += len;
   }
+  usbd_ep_write_packet(dev, ENDPOINT_ADDRESS_MAIN_IN, "\x00", 1);
+
+  if (offset == 32768) sys_shutdown();
 }
 
 #if DEBUG_LINK

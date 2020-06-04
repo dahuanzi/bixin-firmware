@@ -100,6 +100,11 @@ static inline void set_mode_unprivileged(void) {
   __asm__ volatile("msr control, %0" ::"r"(0x1));
 }
 
+static inline void set_mode_privileged(void) {
+  // http://infocenter.arm.com/help/topic/com.arm.doc.dui0552a/CHDBIBGJ.html
+  __asm__ volatile("msr control, %0" ::"r"(0x0));
+}
+
 static inline bool is_mode_unprivileged(void) {
   uint32_t r0;
   __asm__ volatile("mrs %0, control" : "=r"(r0));

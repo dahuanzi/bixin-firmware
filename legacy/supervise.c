@@ -22,6 +22,7 @@
 #include <libopencm3/stm32/flash.h>
 #include <stdint.h>
 #include "memory.h"
+#include "util.h"
 
 #if !EMULATOR
 
@@ -63,7 +64,10 @@ static uint32_t svhandler_flash_lock(void) {
   return FLASH_SR;
 }
 
-static void svhandler_system_reset(void) { scb_reset_core(); }
+static void svhandler_system_reset(void) {
+  set_mode_privileged();
+  // scb_reset_core();
+}
 
 extern volatile uint32_t system_millis;
 
