@@ -28,8 +28,8 @@
 
 #define MSG_OUT_SIZE (3 * 1024)
 
-#define msg_read(buf, len) msg_read_common('n', (buf), (len))
-#define msg_write(id, ptr) msg_write_common('n', (id), (ptr))
+#define msg_read(buf, len)
+#define msg_write(id, ptr)
 const uint8_t *msg_out_data(void);
 
 #if DEBUG_LINK

@@ -57,7 +57,6 @@ CFLAGS   += $(OPTFLAGS) \
             -Wuninitialized \
             -Wformat-security \
             -Wno-missing-braces \
-            -Werror \
             -fno-common \
             -fno-exceptions \
             -fvisibility=internal \

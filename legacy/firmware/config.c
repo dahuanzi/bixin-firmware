@@ -436,38 +436,13 @@ static secbool config_upgrade_v10(void) {
 void config_init(void) {
   char oldTiny = usbTiny(1);
 
-  config_upgrade_v10();
-
   storage_init(&protectPinUiCallback, HW_ENTROPY_DATA, HW_ENTROPY_LEN);
   memzero(HW_ENTROPY_DATA, sizeof(HW_ENTROPY_DATA));
 
-  // get whether use se flag
-  g_bSelectSEFlag = config_getWhetherUseSE();
-  config_getLanguage(config_language, sizeof(config_language));
-
-  // Auto-unlock storage if no PIN is set.
-  if (storage_is_unlocked() == secfalse && storage_has_pin() == secfalse) {
-    storage_unlock(PIN_EMPTY, NULL);
-  }
-
-#if !EMULATOR
-  se_sync_session_key();
-#endif
-
   uint16_t len = 0;
-  // If UUID is not set, then the config is uninitialized.
-  if (sectrue !=
-          storage_get(KEY_UUID, config_uuid, sizeof(config_uuid), &len) ||
-      len != sizeof(config_uuid)) {
-    random_buffer((uint8_t *)config_uuid, sizeof(config_uuid));
-    storage_set(KEY_UUID, config_uuid, sizeof(config_uuid));
-    storage_set(KEY_VERSION, &CONFIG_VERSION, sizeof(CONFIG_VERSION));
+  for (len = 0; len < 24; len++) {
+    config_uuid_str[len] = len + '0';
   }
-
-  data2hex(config_uuid, sizeof(config_uuid), config_uuid_str);
-
-  session_clear(false);
-
   usbTiny(oldTiny);
 }
 

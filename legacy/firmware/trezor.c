@@ -147,33 +147,5 @@ int main(void) {
     usbPoll();
   }
 
-  drbg_init();
-
-  if (!is_mode_unprivileged()) {
-    collect_hw_entropy(true);
-    timer_init();
-#ifdef APPVER
-    // enable MPU (Memory Protection Unit)
-    mpu_config_firmware();
-#endif
-  } else {
-    collect_hw_entropy(false);
-  }
-
-#if DEBUG_LINK
-  oledSetDebugLink(1);
-#if !EMULATOR
-  config_wipe();
-#endif
-#endif
-
-  config_init();
-  layoutHome();
-  usbInit();
-
-  for (;;) {
-    usbPoll();
-    layoutHomeInfo();
-  }
   return 0;
 }
