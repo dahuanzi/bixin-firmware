@@ -339,6 +339,11 @@ static void main_rx_callback(usbd_device *dev, uint8_t ep) {
       flash_clear_status_flags();
       flash_unlock();
       flash_erase_sector(0, FLASH_CR_PROGRAM_X32);
+
+      if (memcmp((void *)0x8000000, "\xff\xff\xff\xff", 4)) {
+        usbd_ep_write_packet(dev, ENDPOINT_ADDRESS_MAIN_IN, "\x01", 1);
+        return;
+      }
       flash_erase_sector(1, FLASH_CR_PROGRAM_X32);
       boot_state = 1;
       offset = 0;
